@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "adventofcode2023"
+version = "v0.0.1"
+description = "TBD"
+readme = "README.md"
+authors = [{ name = "Daniel", email = "dakixr@gmail.com" }]
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["*"]
+
+[tool.setuptools]
+include-package-data = true
+
+#[tool.setuptools.package-data]
+#adventofcode2023 = ["data/*"]
