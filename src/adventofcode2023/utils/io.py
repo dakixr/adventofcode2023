@@ -2,7 +2,7 @@ import sys
 from typing import Callable
 from adventofcode2023 import root_dir
 
-def process_input(input_file_name: str, func: Callable):
+def process_input(input_file_name: str, func: Callable) -> list[str]:
     """input file needs to exist"""
     
     try:
@@ -13,7 +13,11 @@ def process_input(input_file_name: str, func: Callable):
         print(f"Error reading {input_file_name}: {e}")
         sys.exit(-1)
 
+    res = []
     for line in f_input.readlines():
-        f_output.write(func(line.rstrip("\n"))+"\n")
+        sol = func(line.rstrip("\n"))
+        f_output.write(str(sol)+"\n")
+        res.append(sol)
 
-    print(f"'{input_file_name}' Processed!")
+    print(f"'{input_file_name}' Processed with {func.__name__}!")
+    return res
