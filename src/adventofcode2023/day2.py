@@ -49,9 +49,7 @@ def _get_rounds(game: str):
 
 if __name__ == "__main__":
     res = process_input("day2.txt", sol1)
-    res = map(int, res)
-    print(f"sol1:",sum(res))
+    print(f"sol1:",res)
 
     res = process_input("day2.txt", sol2)
-    res = map(int, res)
-    print(f"sol2:",sum(res))
+    print(f"sol2:",res)
