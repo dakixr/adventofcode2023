@@ -1,57 +1,95 @@
+from typing import Any, Generator
 from adventofcode2023.utils.io import readlines
 
 
 def sol1(str_matrix: list[str]) -> int:
     res = 0
-    m: list[list[str]] = [ list(x) for x in str_matrix]
-    for i in range(len(m)):
-        for j in range(len(m[0])):
-            if _is_symbol(m[i][j]):
-                res += _get_numbers(m, i, j)
 
+    # Transform input into matrix, aka list of lists
+    m: list[list[str]] = [list(x) for x in str_matrix]
+
+    # Traverse the matrix in order
+    for c, i, j in _traverse_matrix(m):
+        if c.isdigit():
+            res += _pop_number(m, i, j)
+    
+    for r in m:
+        print("".join(r))
 
     return res
+
+
+## Aux functions
+
+
+def _traverse_matrix(m: list[list[str]]):
+    """Returns char, i, j"""
+    for i in range(len(m)):
+        for j in range(len(m[0])):
+            yield m[i][j], i, j
+
 
 def _is_symbol(c: str):
     return c != "." and not c.isdigit()
 
-def _get_numbers(m: list[list[str]], i: int, j: int) -> int:
-    i_min, i_max = 0, len(m)-1
-    j_min, j_max = 0, len(m[0])-1
-    modifiers = (-1,0,1)
-    numbers_sum = 0
-    for mi in modifiers:
-        for mj in modifiers:
-            curr_i = i + mi
-            curr_j = j + mj
-            if ((i_min <= curr_i <= i_max) 
-                and (j_min <= curr_j <= j_max)):
-                n = _pop_number(m, curr_i, curr_j)
-                if n is not None:
-                    numbers_sum += n
-                    print(n)
 
-    return numbers_sum
-
-def _pop_number(m: list[list[str]], i: int, j: int) -> int | None:
-    if not m[i][j].isdigit():
-        return None
-    
-    j_start, j_end = j-1, j
+def _pop_number(m: list[list[str]], i: int, j: int) -> int:
+    j_start, j_end = j - 1, j
     left_part = ""
     right_part = ""
+
+    adjacent_symbols = []
 
     while j_start >= 0 and m[i][j_start].isdigit():
         left_part = f"{m[i][j_start]}{left_part}"
         m[i][j_start] = "."
+        adjacent_symbols.extend(_get_adjacent_symbols(m, i, j_start, mode="up down"))
         j_start -= 1
+    adjacent_symbols.extend(_get_adjacent_symbols(m, i, j_start+1, mode="left side"))
+    
 
     while j_end < len(m[i]) and m[i][j_end].isdigit():
         right_part = f"{right_part}{m[i][j_end]}"
         m[i][j_end] = "."
+        adjacent_symbols.extend(_get_adjacent_symbols(m, i, j_end, mode="up down"))
         j_end += 1
+    adjacent_symbols.extend(_get_adjacent_symbols(m, i, j_end-1, mode="right side"))
 
-    return int(f"{left_part}{right_part}")
+    if len(adjacent_symbols) == 0:
+        return 0
+
+    n = int(f"{left_part}{right_part}")
+
+    return n
+
+
+def _get_adjacent_symbols(m: list[list[str]], i: int, j: int, mode: str) -> list[str]:
+
+    if mode == "up down":
+        modifiers = [(1,0),(-1,0)]
+
+    elif mode == "left side":
+        modifiers = [(1,-1),(-1,-1),(0,-1)]
+
+    elif mode == "right side":
+        modifiers = [(1,1),(-1,1),(0,1)]
+    else:
+        raise ValueError(f"Invalid mode {mode}")
+
+
+    symbols = []
+    for modifier_i, modifier_j in modifiers:
+        i_curr = i + modifier_i
+        j_curr = j + modifier_j
+        # Check if valid coordinate and is symbol
+        if (
+            len(m) > i_curr >= 0
+            and len(m[0]) > j_curr >= 0
+            and _is_symbol(m[i_curr][j_curr])
+        ):
+            symbols.append(m[i_curr][j_curr])
+
+    return symbols
 
 
 if __name__ == "__main__":
